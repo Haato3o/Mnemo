@@ -28,9 +28,9 @@ namespace Mnemo.Tests.Core.Processing
 
             using var ms = new MemoryStream(Encoding.UTF8.GetBytes(script));
             using var sr = new StreamReader(ms);
-            MnemoPreTokenizer tokenizer = new(sr);
+            MnemoPreTokenizer preTokenizer = new(sr);
 
-            PreToken[] tokens = tokenizer.PreTokenize();
+            PreToken[] tokens = preTokenizer.PreTokenize();
             string[] expected =
             {
                 "Address", "PLAYER_ADDRESS", "=", "0x21000000", ";",
