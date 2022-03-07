@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
+using Mnemo.Core.Entities;
 
 namespace Mnemo.Core.Processing
 {
@@ -10,24 +11,27 @@ namespace Mnemo.Core.Processing
     {
 
         private StreamReader _stream;
-        private readonly List<string> _preTokens = new();
+        private readonly List<PreToken> _preTokens = new();
+        private uint _lineCount = 0;
+        private uint _caret = 0;
 
         public MnemoPreTokenizer(StreamReader stream)
         {
             _stream = stream;
         }
 
-        char Read()
+        private char Read()
         {
+            _caret++;
             return (char)_stream.Peek();
         }
 
-        char Consume()
+        private char Consume()
         {
             return (char)_stream.Read();
         }
 
-        string ReadString()
+        private string ReadString()
         {
             StringBuilder builder = new();
 
@@ -50,13 +54,17 @@ namespace Mnemo.Core.Processing
             return builder.ToString();
         }
 
-        string ReadRaw()
+        private string ReadRaw()
         {
             StringBuilder builder = new();
             char[] discard = { ' ', '\n', '\r', '\t' };
             char[] breaks = { '(', ')', '[', ']', ',', ';' };
 
             char chr = Consume();
+
+            if (chr == '\n')
+                _lineCount++;
+
             while (!_stream.EndOfStream && !discard.Contains(chr))
             {
                 builder.Append(chr);
@@ -70,31 +78,42 @@ namespace Mnemo.Core.Processing
             return builder.ToString();
         }
 
-        string ReadSingleChar()
+        private string ReadSingleChar()
         {
             return Consume().ToString();
         }
 
-        string Next()
+        private PreToken Next()
         {
             char chr = Read();
+            Position position = new()
+            {
+                Line = _lineCount,
+                Character = _caret
+            };
 
-            return chr switch
+            string literal = chr switch
             {
                 '"' => ReadString(),
                 '(' or ')' or '[' or ']' => ReadSingleChar(),
                 _ => ReadRaw()
             };
+
+            return new PreToken()
+            {
+                Literal = literal,
+                Position = position
+            };
         }
 
-        public string[] PreTokenize()
+        public PreToken[] PreTokenize()
         {
 
             while (!_stream.EndOfStream)
             {
-                string token = Next();
+                PreToken token = Next();
 
-                if (string.IsNullOrEmpty(token))
+                if (string.IsNullOrEmpty(token.Literal))
                     continue;
 
                 _preTokens.Add(token);
