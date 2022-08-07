@@ -3,11 +3,7 @@ using Mnemo.Core.Syntax;
 using Mnemo.Core.Syntax.Entity;
 using Mnemo.Core.Syntax.Interfaces;
 using Mnemo.Core.Utils;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mnemo.Tests.Core.Tokenizer
 {
@@ -21,7 +17,7 @@ namespace Mnemo.Tests.Core.Tokenizer
         [TestMethod]
         public void MnemoLexer_ShouldTokenizeCorrectly()
         {
-            // let getPlayerById(id: int32_t) => Read<int32_t>(PLAYER_ADDRESS, 0x20 + id * 8);
+            // const getPlayerById(id: int32_t) => Read<int32_t>(PLAYER_ADDRESS, 0x20 + id * 8);
             string[] preTokens =
             {
                 "const", "getPlayerById", "(", "id", ":", "int32_t", ")", "=>", "Read", "<", "int32_t", ">", "(", "PLAYER_ADDRESS", ",", "0x20", "+", "id", "*", "8", ")", ";"
