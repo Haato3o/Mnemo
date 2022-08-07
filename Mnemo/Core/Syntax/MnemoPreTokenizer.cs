@@ -30,7 +30,12 @@ namespace Mnemo.Core.Syntax
 
                 char nextChar = _stream.PeekChar();
 
-                preTokens.Add(Read(currentChar, nextChar));
+                string preToken = Read(currentChar, nextChar);
+
+                if (preToken.Length == 0)
+                    continue;
+
+                preTokens.Add(preToken);
             }
 
             return preTokens.ToArray();
