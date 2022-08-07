@@ -1,33 +1,39 @@
-# Mnemo
+<div align=center>
 
-Mnemo, short for Mnemosyne, is a statically typed scripting language for memory reading, it supports dynamic offsets, static offsets, offsets calculation based on other pointers.
+![mnemo-banner](https://user-images.githubusercontent.com/35552782/183278976-525d8f99-ba6d-425e-9125-1565194e0aeb.png)
 
-```
+## The Memory DSL
+
+</div>
+
+> **Warning**:
+> This project is still under development so none of this is actually working yet.
+
+Mnemo, short for Mnemosyne, is a statically typed [DSL](https://en.wikipedia.org/wiki/Domain-specific_language) for memory reading. It exists for the purposes of making it easier and more straightforward to read other processes memory.
+
+
+```js
 // This is a comment
-Address PLAYER_ADDRESS = 0x21000000;
-Offsets PLAYER_OFFSETS = [0x10, 0x20, 0x30];
+const PLAYER_ADDRESS: uint64_t = 0x21000000;
+const PLAYER_OFFSETS: vec<uint32_t> => [0x10, 0x20, 0x30];
 
-Offsets DYNAMIC_OFFSETS = [
+// This can be initialized later on by the Mnemo Context
+var LATE_INIT_PTR: uint64_t;
+
+// Mnemo also supports dynamic offsets calculation
+const getDynamicOffsets(rax: int32_t) => [
     0x10,
     0x20,
-    (rbx * 8) + 0x20,
+    (rax * 8) + 0x20,
     0xA8
 ];
 
-// Mnemo also supports dynamic offsets calculation based on other pointers
-let PlayerId => Read<Int32>(PLAYER_ADDRESS, PLAYER_OFFSETS);
-
-Offsets DYNAMIC_DEPENDENT_OFFSETS = [
-    0x10,
-    0x20,
-    (PlayerId * 8) + 0x20,
-    0xA8
-];
+const PlayerId => Read<int32_t>(PLAYER_ADDRESS, getDynamicOffsets(2));
 ```
 
 ## Mnemo Context
 
-Mnemo runs on it's own "Context", you can talk to the Mnemo context using the C# API Mnemo provides you.
+Mnemo runs on its own "Context", you can talk to the Mnemo context using the C# API Mnemo provides you.
 
 ### Creating a context
 
@@ -39,31 +45,8 @@ int playerId = context.Get<int>("PlayerId");
 int[] playerOffsets = context.Get<int[]>("PLAYER_OFFSETS");
 long playerAddress = context.Get<long>("PLAYER_ADDRESS");
 
+// You can set variables within the context
+context.Set<long>("LATE_INIT_PTR", 0x1412345678);
+
 long playerPointer = context.Read<long>("PLAYER_ADDRESS", "DYNAMIC_DEPENDENT_OFFSETS");
-```
-
-## Examples
-
-### Example 1
-Lets say you want to read a game's process memory looking for the player's save, you have the static address and the offsets:
-Static address: Process.exe+0xDEADC0FFEE
-Offsets: { 0xA0, 0xB1, SaveSlot * 8 + 0xC0 } 
-
-A Mnemosyne script for that would look somewhat like this:
-```
-Address PlayerStaticAddress = 0xDEADC0FFEE;
-Offsets PlayerOffsets = [ 0xA0, 0xB1, SaveSlot * 8 + 0xC0 ];
-
-Address SaveSlotAddress = 0xFFFFFFFF;
-Address SaveSlotOffsets = [0x10, 0x20, 0x0];
-let SaveSlot => Read<Int32>(SaveSlotAddress, SaveSlotOffsets);
-```
-
-Now we can call the script values from Mnemo's C# Context:
-```cs
-private long GetCurrentPlayerSaveAddress() 
-{
-    Mnemo context = Mnemo.Create("save_slot.mn", pHandle);
-    return context.Read<long>("PlayerStaticAddress", "PlayerOffsets");
-}
 ```
