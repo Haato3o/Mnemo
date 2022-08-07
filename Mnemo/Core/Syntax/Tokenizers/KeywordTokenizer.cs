@@ -9,7 +9,9 @@ namespace Mnemo.Core.Syntax.Tokenizers
 
         public Dictionary<string, Token> _keywords = new()
         {
-            { "const", Token.DefineConst }
+            { "const", Token.DefineConst },
+            { "let", Token.DefineSoft },
+            { "import", Token.Import }
         };
 
         public bool CanTokenize(string token) => _keywords.ContainsKey(token);

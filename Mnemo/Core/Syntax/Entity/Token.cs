@@ -18,6 +18,8 @@
         Separator,
         Colon,
         DefineConst,
+        DefineSoft,
+        Import,
         Arithmetic
     }
 }

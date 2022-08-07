@@ -45,13 +45,28 @@ namespace Mnemo.Core.Syntax
         {
             return current switch
             {
-                '+' or '-' or '/' or '*'
+                '+' or '-' or '*'
                 or '(' or ')' or '[' or ']'
                 or '<' or '>' or ';' or ','
                 or ':' => current.ToString(),
                 '=' => ReadArrow(current, next),
+                '"' => ReadString(current),
+                '/' => ReadComment(current, next),
                 _ => ReadLiteral(current)
             };
+        }
+
+        private string ReadComment(char current, char next)
+        {
+            if (current != next)
+                return current.ToString();
+
+            while (!_stream.EndOfStream && !current.IsEnd())
+            {
+                current = _stream.ReadChar();
+            }
+
+            return string.Empty;
         }
 
         private string ReadLiteral(char current)
@@ -66,6 +81,20 @@ namespace Mnemo.Core.Syntax
 
                 current = _stream.ReadChar();
             }
+
+            return builder.ToString();
+        }
+
+        private string ReadString(char current)
+        {
+            StringBuilder builder = new();
+            do
+            {
+                builder.Append(current);
+
+                current = _stream.ReadChar();
+
+            } while (!_stream.EndOfStream && !current.IsDoubleQuote());
 
             return builder.ToString();
         }

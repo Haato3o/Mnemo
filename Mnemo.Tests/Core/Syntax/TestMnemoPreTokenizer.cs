@@ -30,6 +30,7 @@ namespace Mnemo.Tests.Core.Syntax
             string testCase =
             @"
             const PLAYER_ADDRESS = 0x12345678;
+            // This comment should be ignored
             const getPlayerOffsets(i: uint32_t) => [0xA8, 0x20 + i * 8, 0x18];
             const getPlayerLevel(i: uint32_t) => Read<uint32_t>(PLAYER_ADDRESS, getPlayerOffsets(i));
             ";

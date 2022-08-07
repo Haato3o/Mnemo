@@ -6,6 +6,7 @@
         public static bool IsNumber(this char self) => self >= '0' && self <= '9';
         public static bool IsPartOfLiteral(this char self) => self.IsLetter() || self.IsNumber() || self == '_';
         public static bool IsSpace(this char self) => self == ' ';
+        public static bool IsDoubleQuote(this char self) => self == '"';
         public static bool IsEnd(this char self) => self == '\n';
         public static bool IsInvalid(this char self) => self == '\r';
     }
