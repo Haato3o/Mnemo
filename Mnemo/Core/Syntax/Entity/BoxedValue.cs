@@ -1,6 +1,6 @@
 ﻿namespace Mnemo.Core.Syntax.Entity
 {
-    public struct BoxedValue
+    internal struct BoxedValue
     {
         public object Value { get; init; }
 

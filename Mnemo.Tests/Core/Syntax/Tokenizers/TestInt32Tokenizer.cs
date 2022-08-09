@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Mnemo.Core.Syntax.Entity;
 using Mnemo.Core.Syntax.Tokenizers;
 
 namespace Mnemo.Tests.Core.Syntax.Tokenizers
@@ -6,7 +7,7 @@ namespace Mnemo.Tests.Core.Syntax.Tokenizers
     [TestClass]
     public class TestInt32Tokenizer
     {
-        public Int32Tokenizer tokenizer = new();
+        private readonly Int32Tokenizer tokenizer = new();
 
         [TestMethod]
         public void Int32Tokenizer_ShouldReturnRightCanTokenize()
@@ -38,6 +39,12 @@ namespace Mnemo.Tests.Core.Syntax.Tokenizers
                 var actual = tokenizer.ConvertValue(preToken);
                 Assert.AreEqual(expected, actual);
             }
+        }
+
+        [TestMethod]
+        public void Int32Tokenizer_ShouldBeValue()
+        {
+            Assert.AreEqual(Token.Value, tokenizer.Tokenize("10"));
         }
     }
 }

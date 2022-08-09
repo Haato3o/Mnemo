@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mnemo.Core.Syntax;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Mnemo.Tests.Core.Syntax
@@ -19,7 +20,9 @@ namespace Mnemo.Tests.Core.Syntax
             using StreamReader reader = new(stream);
             MnemoPreTokenizer preTokenizer = new(reader);
 
-            string[] preTokens = preTokenizer.Process();
+            string[] preTokens = preTokenizer.Process()
+                                             .Select(pt => pt.Value)
+                                             .ToArray();
 
             CollectionAssert.AreEqual(expected, preTokens);
         }
@@ -46,7 +49,9 @@ namespace Mnemo.Tests.Core.Syntax
             using StreamReader reader = new(stream);
             MnemoPreTokenizer preTokenizer = new(reader);
 
-            string[] preTokens = preTokenizer.Process();
+            string[] preTokens = preTokenizer.Process()
+                                             .Select(pt => pt.Value)
+                                             .ToArray(); ;
 
             CollectionAssert.AreEqual(expected, preTokens);
         }

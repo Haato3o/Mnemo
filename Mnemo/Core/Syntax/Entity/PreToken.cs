@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mnemo.Core.Interpreter
+namespace Mnemo.Core.Syntax.Entity
 {
-    internal class MnemoVirtualMachine
+    internal struct PreToken
     {
+        public TokenMetadata Metadata;
+        public string Value;
     }
 }

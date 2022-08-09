@@ -1,11 +1,12 @@
 ﻿using Mnemo.Core.Syntax.Entity;
 using Mnemo.Core.Syntax.Interfaces;
+using Mnemo.Core.Syntax.Stream;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Mnemo.Core.Syntax
 {
-    public class MnemoLexer
+    internal class MnemoLexer
     {
         private readonly ITokenizer[] _tokenizers;
         public MnemoLexer(ITokenizer[] tokenizers)
@@ -13,25 +14,26 @@ namespace Mnemo.Core.Syntax
             _tokenizers = tokenizers;
         }
 
-        public List<MnemoToken> Invoke(string[] preTokens)
+        public TokenStream Process(PreToken[] preTokens)
         {
             List<MnemoToken> tokens = new(preTokens.Length);
 
-            foreach (string preToken in preTokens)
+            foreach (PreToken preToken in preTokens)
             {
                 MnemoToken token = new MnemoToken()
                 {
-                    Token = ConvertToToken(preToken),
+                    Metadata = preToken.Metadata,
+                    Token = ConvertToToken(preToken.Value),
                     Value = new BoxedValue
                     {
-                        Value = ConvertValue(preToken)
+                        Value = ConvertValue(preToken.Value)
                     }
                 };
 
                 tokens.Add(token);
             }
 
-            return tokens;
+            return new TokenStream(tokens.ToArray());
         }
 
         private Token ConvertToToken(string preToken)

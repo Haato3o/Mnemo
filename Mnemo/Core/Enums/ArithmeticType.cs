@@ -1,6 +1,6 @@
 ﻿namespace Mnemo.Core.Enums
 {
-    public enum ArithmeticType
+    internal enum ArithmeticType
     {
         Add,
         Sub,

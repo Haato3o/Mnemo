@@ -1,6 +1,6 @@
 ﻿namespace Mnemo.Core.Compiler.Entities
 {
-    public enum Instructions
+    internal enum Instructions
     {
         Nop,
         Push,

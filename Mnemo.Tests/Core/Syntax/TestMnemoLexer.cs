@@ -11,8 +11,8 @@ namespace Mnemo.Tests.Core.Tokenizer
     public class TestMnemoLexer
     {
 
-        private static ITokenizer[] tokenizers = Dependencies.FindAllTokenizers();
-        private MnemoLexer lexer = new(tokenizers);
+        private readonly static ITokenizer[] tokenizers = Dependencies.FindAllTokenizers();
+        private readonly MnemoLexer lexer = new(tokenizers);
 
         [TestMethod]
         public void MnemoLexer_ShouldTokenizeCorrectly()
@@ -22,6 +22,8 @@ namespace Mnemo.Tests.Core.Tokenizer
             {
                 "const", "getPlayerById", "(", "id", ":", "int32_t", ")", "=>", "Read", "<", "int32_t", ">", "(", "PLAYER_ADDRESS", ",", "0x20", "+", "id", "*", "8", ")", ";"
             };
+            PreToken[] preTokenized = preTokens.Select(preToken => new PreToken { Value = preToken })
+                                               .ToArray();
             Token[] tokens =
             {
                 Token.DefineConst, Token.Literal, Token.ParenStart, Token.Literal, Token.Colon, Token.Type, Token.ParenEnd, Token.Func, Token.Intrinsic,
@@ -29,7 +31,8 @@ namespace Mnemo.Tests.Core.Tokenizer
                 Token.Value, Token.ParenEnd, Token.End
             };
 
-            var mnemoTokens = lexer.Invoke(preTokens)
+            var mnemoTokens = lexer.Process(preTokenized)
+                                   .AsArray()
                                    .Select(token => token.Token)
                                    .ToArray();
 

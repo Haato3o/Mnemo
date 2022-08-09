@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Mnemo.Core.Utils
 {
-    public static class Dependencies
+    internal static class Dependencies
     {
         public static ITokenizer[] FindAllTokenizers()
         {

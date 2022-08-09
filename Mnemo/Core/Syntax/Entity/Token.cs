@@ -1,6 +1,6 @@
 ﻿namespace Mnemo.Core.Syntax.Entity
 {
-    public enum Token
+    internal enum Token
     {
         Type,
         Literal,

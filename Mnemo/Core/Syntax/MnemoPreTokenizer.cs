@@ -1,41 +1,51 @@
-﻿using Mnemo.Core.Utils;
-using System;
+﻿using Mnemo.Core.Syntax.Entity;
+using Mnemo.Core.Syntax.Stream;
+using Mnemo.Core.Utils;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Mnemo.Core.Syntax
 {
-    public class MnemoPreTokenizer
+    internal class MnemoPreTokenizer
     {
-        public readonly StreamReader _stream;
+        public readonly StreamReaderWrapper _stream;
 
         public MnemoPreTokenizer(StreamReader stream)
         {
-            _stream = stream;
+            _stream = new StreamReaderWrapper(stream);
         }
 
-        public string[] Process()
+        public PreToken[] Process()
         {
-            List<string> preTokens = new();
+            List<PreToken> preTokens = new();
 
             while (!_stream.EndOfStream)
             {
-                char currentChar = _stream.ReadChar();
+                char currentChar = _stream.Read();
 
                 if (currentChar.IsSpace() || currentChar.IsInvalid())
                     continue;
 
-                char nextChar = _stream.PeekChar();
+                char nextChar = _stream.Peek();
 
                 string preToken = Read(currentChar, nextChar);
 
                 if (preToken.Length == 0)
                     continue;
 
-                preTokens.Add(preToken);
+                PreToken entity = new PreToken
+                {
+                    Metadata = new TokenMetadata
+                    {
+                        // TODO: Add file name
+                        Line = _stream.CurrentLine,
+                        Position = _stream.Position
+                    },
+                    Value = preToken
+                };
+
+                preTokens.Add(entity);
             }
 
             return preTokens.ToArray();
@@ -63,7 +73,7 @@ namespace Mnemo.Core.Syntax
 
             while (!_stream.EndOfStream && !current.IsEnd())
             {
-                current = _stream.ReadChar();
+                current = _stream.Read();
             }
 
             return string.Empty;
@@ -76,10 +86,10 @@ namespace Mnemo.Core.Syntax
             {
                 builder.Append(current);
 
-                if (!_stream.PeekChar().IsPartOfLiteral())
+                if (!_stream.Peek().IsPartOfLiteral())
                     break;
 
-                current = _stream.ReadChar();
+                current = _stream.Read();
             }
 
             return builder.ToString();
@@ -92,7 +102,7 @@ namespace Mnemo.Core.Syntax
             {
                 builder.Append(current);
 
-                current = _stream.ReadChar();
+                current = _stream.Read();
 
             } while (!_stream.EndOfStream && !current.IsDoubleQuote());
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Mnemo.Core.Syntax.Tokenizers
 {
-    public class IntrinsicsTokenizer : ITokenizer
+    internal class IntrinsicsTokenizer : ITokenizer
     {
         private HashSet<string> _intrinsics = new()
         {

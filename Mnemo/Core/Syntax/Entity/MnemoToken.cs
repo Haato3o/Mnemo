@@ -1,8 +1,9 @@
 ﻿namespace Mnemo.Core.Syntax.Entity
 {
-    public struct MnemoToken
+    internal struct MnemoToken
     {
-        public BoxedValue Value { get; init; }
-        public Token Token { get; init; }
+        public TokenMetadata Metadata;
+        public BoxedValue Value;
+        public Token Token;
     }
 }

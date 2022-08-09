@@ -2,7 +2,7 @@
 
 namespace Mnemo.Core.Syntax.Interfaces
 {
-    public interface ITokenizer
+    internal interface ITokenizer
     {
         public bool CanTokenize(string token);
         public Token Tokenize(string token);

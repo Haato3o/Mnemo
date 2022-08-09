@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Mnemo.Core.Syntax.Tokenizers
 {
-    public class KeywordTokenizer : ITokenizer
+    internal class KeywordTokenizer : ITokenizer
     {
 
         public Dictionary<string, Token> _keywords = new()

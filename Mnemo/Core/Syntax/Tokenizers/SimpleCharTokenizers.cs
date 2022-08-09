@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Mnemo.Core.Syntax.Tokenizers
 {
-    public class SimpleCharTokenizers : ITokenizer
+    internal class SimpleCharTokenizers : ITokenizer
     {
         private readonly Dictionary<string, Token> _lookup = new()
         {
