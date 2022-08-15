@@ -9,6 +9,7 @@ namespace Mnemo.Core.Syntax.Stream
     {
         private readonly MemoryStream _stream;
         private readonly static int structSize = Marshal.SizeOf<MnemoToken>();
+        private long _rewindPosition = 0;
 
         public TokenStream(MnemoToken[] tokens)
         {
@@ -20,10 +21,44 @@ namespace Mnemo.Core.Syntax.Stream
             return _stream.ReadStructure<MnemoToken>();
         }
 
+        public MnemoToken Peek()
+        {
+            long position = _stream.Position;
+            MnemoToken token = Read();
+            _stream.Position = position;
+            return token;
+        }
+
+        public MnemoToken Next(Token token)
+        {
+            var mnemoToken = Read();
+            
+            while (mnemoToken.Token != token)
+            {
+                mnemoToken = Read();
+            }
+
+            return mnemoToken;
+        }
+
+        public void Remember()
+        {
+            _rewindPosition = _stream.Position;
+        }
+
+        public void Rewind()
+        {
+            _stream.Position = _rewindPosition;
+        }
+
         public void Consume()
         {
             _stream.Position += structSize;
         }
+
+        public bool IsEndOfStream() => _stream.Position >= _stream.Length;
+
+        public void Reset() => _stream.Position = 0;
 
         public MnemoToken[] AsArray()
         {

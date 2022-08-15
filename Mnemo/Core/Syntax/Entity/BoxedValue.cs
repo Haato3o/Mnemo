@@ -8,5 +8,7 @@
         {
             return (T)Value;
         }
+
+        public object Get() => Value;
     }
 }

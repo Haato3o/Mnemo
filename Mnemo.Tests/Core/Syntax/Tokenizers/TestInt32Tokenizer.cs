@@ -42,6 +42,15 @@ namespace Mnemo.Tests.Core.Syntax.Tokenizers
         }
 
         [TestMethod]
+        public void Int32Tokenizer_ShouldNotConvertNonValidValues()
+        {
+            string[] notInts = { "A", "Hello", "World", "0b02" };
+
+            foreach (string notInt in notInts)
+                Assert.IsFalse(tokenizer.CanTokenize(notInt), $"'{notInt}' returned true");
+        }
+
+        [TestMethod]
         public void Int32Tokenizer_ShouldBeValue()
         {
             Assert.AreEqual(Token.Value, tokenizer.Tokenize("10"));

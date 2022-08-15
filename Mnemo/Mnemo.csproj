@@ -2,13 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyVersion>1.0.0.22</AssemblyVersion>
-    <FileVersion>1.0.0.22</FileVersion>
+    <AssemblyVersion>1.0.0.34</AssemblyVersion>
+    <FileVersion>1.0.0.34</FileVersion>
     <Company>Haato</Company>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Core\Validator\" />
-  </ItemGroup>
 
 </Project>

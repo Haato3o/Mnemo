@@ -34,7 +34,7 @@ namespace Mnemo.Core.Syntax.Tokenizers
                 token = token[2..];
 
             foreach (char c in token)
-                if (!validCharsLookup.ContainsKey(c))
+                if (!validCharsLookup.ContainsKey(c) || validCharsLookup[c] > (int)(type - 1))
                     return false;
 
             return true;

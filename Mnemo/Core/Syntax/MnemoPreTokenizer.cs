@@ -92,6 +92,9 @@ namespace Mnemo.Core.Syntax
                 current = _stream.Read();
             }
 
+            if (builder.Length == 0 && current.IsPartOfLiteral())
+                builder.Append(current);
+
             return builder.ToString();
         }
 
