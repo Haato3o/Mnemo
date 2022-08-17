@@ -3,9 +3,6 @@ using Mnemo.Core.Syntax.AST.Nodes;
 using Mnemo.Core.Syntax.Entity;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mnemo.Core.Syntax.AST.Utils
 {
@@ -86,6 +83,71 @@ namespace Mnemo.Core.Syntax.AST.Utils
                 operands.Enqueue(operators.Pop());
 
             return operands;
+        }
+
+        public static MnemoASTNode ToASTNode(this Queue<MnemoToken> tokens)
+        {
+            if (tokens.Count == 1)
+            {
+                var token = tokens.Dequeue();
+                return token.Token switch
+                {
+                    Token.Literal => new MnemoVariableASTNode() { Name = token.Value.GetAs<string>(), Metadata = token.Metadata },
+                    Token.Value => new MnemoLiteralASTNode() { Value = token.Value, Metadata = token.Metadata },
+                    _ => throw new NotImplementedException()
+                };
+            }
+
+            Stack<MnemoASTNode> stack = new Stack<MnemoASTNode>();
+
+            while (tokens.Count > 0)
+            {
+                var token = tokens.Dequeue();
+
+                switch (token.Token)
+                {
+                    case Token.Arithmetic:
+                        {
+                            var node = new MnemoArithmeticASTNode()
+                            {
+                                Metadata = token.Metadata,
+                                Left = stack.Pop(),
+                                Right = stack.Pop(),
+                                Type = token.Value.GetAs<ArithmeticType>()
+                            };
+
+                            stack.Push(node);
+                            break;
+                        }
+                    case Token.Literal:
+                        {
+                            var node = new MnemoVariableASTNode()
+                            {
+                                Name = token.Value.GetAs<string>(),
+                                Metadata = token.Metadata
+                            };
+
+                            stack.Push(node);
+                            break;
+                        }
+                    case Token.Value:
+                        {
+                            var node = new MnemoLiteralASTNode()
+                            {
+                                Value = token.Value,
+                                Metadata = token.Metadata
+                            };
+
+                            stack.Push(node);
+
+                            break;
+                        }
+                    default:
+                        throw new NotImplementedException();
+                }
+            }
+
+            return stack.Pop();
         }
     }
 }

@@ -2,6 +2,6 @@
 {
     internal class MnemoVariableASTNode : MnemoASTNode
     {
-        public string Name { get; }
+        public string Name { get; init; }
     }
 }

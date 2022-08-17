@@ -1,4 +1,5 @@
 ﻿using Mnemo.Core.Syntax.AST.Nodes;
+using Mnemo.Core.Syntax.AST.Utils;
 using Mnemo.Core.Syntax.Entity;
 using Mnemo.Core.Syntax.Stream;
 using System;
@@ -54,7 +55,7 @@ namespace Mnemo.Core.Syntax.AST
 
         MnemoASTNode BuildExpressionNode()
         {
-            var token = _stream.Read();
+            var token = _stream.Peek();
 
             return token.Token switch
             {
@@ -67,14 +68,14 @@ namespace Mnemo.Core.Syntax.AST
 
         MnemoASTNode BuildAssignNode()
         {
-            var token = _stream.Read();
-            
-            if (token.Token == Token.ListStart)
+            var assignToken = _stream.Read();
+            var token = _stream.Peek();
+
+            return token.Token switch
             {
-
-            }
-
-            return null;
+                Token.ListStart => BuildListNode(),
+                _ => throw new NotImplementedException($"TODO: Implement expression for {token.Token}")
+            };
         }
 
         MnemoASTNode BuildFuncNode()
@@ -84,33 +85,44 @@ namespace Mnemo.Core.Syntax.AST
 
         MnemoASTNode BuildListNode()
         {
-            List<MnemoLiteralASTNode> nodes = new();
+            List<MnemoASTNode> nodes = new();
             Queue<MnemoToken> tokens = new();
+
+            var arrayStarttoken = _stream.Read();
             var token = _stream.Read();
 
             while (token.Token != Token.ListEnd)
             {
                 
-                if (token.Token == Token.Separator)
+                switch (token.Token)
                 {
+                    case Token.Separator:
+                        {
+                            Queue<MnemoToken> postfixTokens = MnemoSyntaxHelper.InfixToPostfix(tokens);
 
-                    continue;
+                            nodes.Add(postfixTokens.ToASTNode());
+
+                            tokens.Clear();
+                            break;
+                        }
+                    case Token.Literal:
+                    case Token.Value:
+                    case Token.Arithmetic:
+                        {
+                            tokens.Enqueue(token);
+                            break;
+                        }
+                    default:
+                        throw new NotImplementedException("TODO: Throw better error here");
+                        
                 }
-                    
-
-                tokens.Enqueue(token);
-
-                if (token.Token == Token.Value)
-                    nodes.Add(new MnemoLiteralASTNode()
-                    {
-                        Metadata = token.Metadata,
-                        Value = token.Value
-                    });
-                else if (token.Token == Token.Arithmetic)
-                    return null;
             }
 
-            return null;
+            return new MnemoArrayASTNode
+            {
+                Metadata = arrayStarttoken.Metadata,
+                Values = nodes.ToArray()
+            };
         }
     }
 }

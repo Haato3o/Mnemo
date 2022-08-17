@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyVersion>1.0.0.34</AssemblyVersion>
-    <FileVersion>1.0.0.34</FileVersion>
+    <AssemblyVersion>1.0.0.36</AssemblyVersion>
+    <FileVersion>1.0.0.36</FileVersion>
     <Company>Haato</Company>
   </PropertyGroup>
 
