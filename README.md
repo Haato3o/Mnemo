@@ -15,20 +15,24 @@ Mnemo, short for Mnemosyne, is a statically typed [DSL](https://en.wikipedia.org
 ```js
 // This is a comment
 const PLAYER_ADDRESS: uint64_t = 0x21000000;
-const PLAYER_OFFSETS: vec<uint32_t> => [0x10, 0x20, 0x30];
+const PLAYER_OFFSETS: vec<uint32_t> = [0x10, 0x20, 0x30];
 
 // This can be initialized later on by the Mnemo Context
 var LATE_INIT_PTR: uint64_t;
 
 // Mnemo also supports dynamic offsets calculation
-const getDynamicOffsets(rax: int32_t) => [
+const getSaveOffsets(saveIndex: int32_t): vec<int32_t> => [
     0x10,
     0x20,
-    (rax * 8) + 0x20,
+    (saveIndex * 8) + 0x20,
     0xA8
 ];
 
-const PlayerId => Read<int32_t>(PLAYER_ADDRESS, getDynamicOffsets(2));
+const PlayerId => {
+    let currentSave = getSaveOffsets(1); 
+
+    return Read<int32_t>(PLAYER_ADDRESS, currentSave);
+}
 ```
 
 ## Mnemo Context
