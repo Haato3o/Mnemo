@@ -26,6 +26,8 @@ namespace Mnemo.Core.Syntax.Stream
             if (character.IsLineBreak())
                 CurrentLine++;
 
+            Position++;
+
             return character;
         }
 

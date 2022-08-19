@@ -4,16 +4,12 @@ using Mnemo.Core.Syntax.Entity;
 using Mnemo.Core.Syntax.Stream;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mnemo.Core.Syntax.AST
 {
     internal class MnemoSyntaxAnalyzer
     {
         private readonly TokenStream _stream;
-        private readonly MnemoRootASTNode _ast;
 
         public MnemoSyntaxAnalyzer(TokenStream stream)
         {
@@ -22,21 +18,50 @@ namespace Mnemo.Core.Syntax.AST
 
         public MnemoRootASTNode Process()
         {
+            MnemoRootASTNode root = new MnemoRootASTNode()
+            {
+                Name = "Program"
+            };
 
+            while (!_stream.IsEndOfStream())
+            {
+                var token = _stream.Peek();
 
+                if (token.Token == Token.End)
+                {
+                    _stream.Consume();
+                    continue;
+                }
 
-            return _ast;
+                MnemoASTNode node = token.Token switch
+                {
+                    Token.DefineConst => BuildConstNode(),
+                    _ => throw new NotImplementedException("TODO: Implement other tokens")
+                };
+
+                root.Nodes.Add(node);
+            }
+
+            return root;
         }
 
         MnemoASTNode BuildConstNode()
         {
             var tokenDefine = _stream.Next(Token.DefineConst);
-            var tokenName = _stream.Next(Token.DefineConst);
+            var tokenName = _stream.Next(Token.Literal);
+            MnemoParamASTNode[] parameters = Array.Empty<MnemoParamASTNode>();
+
+            if (_stream.Peek().Token == Token.ParenStart)
+            {
+                parameters = BuildParamsNodes().ToArray();
+            }
+
             var tokenType = _stream.Next(Token.Type);
 
             MnemoDefineASTNode node = new MnemoDefineASTNode()
             {
                 Metadata = tokenDefine.Metadata,
+                
                 Name = new()
                 {
                     Value = tokenName.Value,
@@ -47,10 +72,44 @@ namespace Mnemo.Core.Syntax.AST
                     Value = tokenType.Value,
                     Metadata = tokenType.Metadata,
                 },
+                Params = parameters,
                 Expr = BuildExpressionNode()
             };
 
             return node;
+        }
+
+        List<MnemoParamASTNode> BuildParamsNodes()
+        {
+            List<MnemoParamASTNode> nodes = new List<MnemoParamASTNode>();
+
+            MnemoToken token = _stream.Read();
+            while (token.Token != Token.ParenEnd)
+            {
+                if (token.Token == Token.ParenStart ||
+                    token.Token == Token.Separator)
+                {
+                    token = _stream.Read();
+                    continue;
+                }
+
+                MnemoToken paramType = _stream.Next(Token.Type);
+
+                nodes.Add(new MnemoParamASTNode()
+                {
+                    Metadata = token.Metadata,
+                    Type = new MnemoLiteralASTNode
+                    {
+                        Metadata = paramType.Metadata,
+                        Value = paramType.Value
+                    },
+                    Name = token.Value.GetAs<string>()
+                });
+
+                token = _stream.Read();
+            }
+
+            return nodes;
         }
 
         MnemoASTNode BuildExpressionNode()
@@ -71,16 +130,47 @@ namespace Mnemo.Core.Syntax.AST
             var assignToken = _stream.Read();
             var token = _stream.Peek();
 
-            return token.Token switch
+            MnemoASTNode expr = token.Token switch
             {
                 Token.ListStart => BuildListNode(),
+                Token.Value => BuildLiteralNode(),
                 _ => throw new NotImplementedException($"TODO: Implement expression for {token.Token}")
+            };
+
+            return new MnemoAssignASTNode()
+            {
+                Metadata = assignToken.Metadata,
+                Expression = expr
+            };
+        }
+
+        MnemoLiteralASTNode BuildLiteralNode()
+        {
+            var token = _stream.Read();
+
+            return new MnemoLiteralASTNode()
+            {
+                Metadata = token.Metadata,
+                Value = token.Value
             };
         }
 
         MnemoASTNode BuildFuncNode()
         {
-            return null;
+            var funcToken = _stream.Read();
+            var token = _stream.Peek();
+
+            MnemoASTNode expr = token.Token switch
+            {
+                Token.ListStart => BuildListNode(),
+                _ => throw new NotImplementedException($"Not implemented expression for {token.Token}")
+            };
+
+            return new MnemoFuncASTNode()
+            {
+                Metadata = funcToken.Metadata,
+                Expression = expr
+            };
         }
 
         MnemoASTNode BuildListNode()
@@ -107,6 +197,8 @@ namespace Mnemo.Core.Syntax.AST
                         }
                     case Token.Literal:
                     case Token.Value:
+                    case Token.ParenStart:
+                    case Token.ParenEnd:
                     case Token.Arithmetic:
                         {
                             tokens.Enqueue(token);
@@ -116,7 +208,14 @@ namespace Mnemo.Core.Syntax.AST
                         throw new NotImplementedException("TODO: Throw better error here");
                         
                 }
+
+                token = _stream.Read();
             }
+
+            if (tokens.Count > 0)
+                nodes.Add(
+                    MnemoSyntaxHelper.InfixToPostfix(tokens).ToASTNode()
+                );
 
             return new MnemoArrayASTNode
             {

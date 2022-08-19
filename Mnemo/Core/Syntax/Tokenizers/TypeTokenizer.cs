@@ -18,7 +18,7 @@ namespace Mnemo.Core.Syntax.Tokenizers
             "int64_t",
             "float",
             "double",
-            "vector"
+            "vector",
         };
 
         public bool CanTokenize(string token) => _types.Contains(token);
