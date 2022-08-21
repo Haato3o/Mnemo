@@ -5,6 +5,7 @@ namespace Mnemo.Core.Syntax.AST.Nodes
 {
     internal class MnemoASTNode
     {
+        [JsonIgnore]
         public TokenMetadata Metadata { get; init; }
     }
 }

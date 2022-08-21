@@ -36,6 +36,7 @@ namespace Mnemo.Core.Syntax.AST
                 MnemoASTNode node = token.Token switch
                 {
                     Token.DefineConst => BuildConstNode(),
+                    Token.DefineSoft => BuildLetNode(),
                     _ => throw new NotImplementedException("TODO: Implement other tokens")
                 };
 
@@ -43,6 +44,32 @@ namespace Mnemo.Core.Syntax.AST
             }
 
             return root;
+        }
+
+        MnemoASTNode BuildLetNode()
+        {
+            var tokenDefine = _stream.Next(Token.DefineSoft);
+            var tokenName = _stream.Next(Token.Literal);
+            var tokenType = _stream.Next(Token.Type);
+            var tokenEnd = _stream.Peek();
+
+            return new MnemoDefineMutableASTNode
+            {
+                Metadata = tokenDefine.Metadata,
+                Name = new MnemoLiteralASTNode
+                {
+                    Metadata = tokenName.Metadata,
+                    Value = tokenName.Value,
+                },
+                Type = new MnemoLiteralASTNode
+                {
+                    Metadata = tokenType.Metadata,
+                    Value = tokenType.Value
+                },
+                Expr = tokenEnd.Token == Token.End 
+                        ? new MnemoASTNode { Metadata = tokenEnd.Metadata } 
+                        : BuildAssignNode(),
+            };
         }
 
         MnemoASTNode BuildConstNode()
@@ -163,6 +190,7 @@ namespace Mnemo.Core.Syntax.AST
             MnemoASTNode expr = token.Token switch
             {
                 Token.ListStart => BuildListNode(),
+                Token.Intrinsic => BuildIntrinsicNode(),
                 _ => throw new NotImplementedException($"Not implemented expression for {token.Token}")
             };
 
@@ -171,6 +199,106 @@ namespace Mnemo.Core.Syntax.AST
                 Metadata = funcToken.Metadata,
                 Expression = expr
             };
+        }
+
+        MnemoASTNode BuildIntrinsicNode()
+        {
+            var intrinsicNode = _stream.Read();
+
+
+            return new MnemoIntrinsicASTNode()
+            {
+                Intrinsic = new MnemoLiteralASTNode
+                {
+                    Metadata = intrinsicNode.Metadata,
+                    Value = intrinsicNode.Value
+                },
+                Generics = BuildGenericTypeNodes(),
+                Parameters = BuildArgumentNodes()
+            };
+        }
+
+        MnemoASTNode[] BuildArgumentNodes()
+        {
+            if (_stream.Peek().Token != Token.ParenStart)
+                throw new Exception("TODO: Better exception message for invalid syntax");
+
+            List<MnemoASTNode> nodes = new();
+            var token = _stream.Read();
+            while (token.Token != Token.ParenEnd)
+            {
+                switch (token.Token) {
+                    case Token.Literal:
+                        {
+                            var nextToken = _stream.Peek();
+                            MnemoASTNode node = nextToken.Token switch
+                            {
+                                Token.ParenStart => new MnemoCallASTNode
+                                {
+                                    Metadata = token.Metadata,
+                                    Name = new MnemoLiteralASTNode
+                                    {
+                                        Metadata = token.Metadata,
+                                        Value = token.Value,
+                                    },
+                                    Parameters = BuildArgumentNodes(),
+                                },
+                                _ => new MnemoVariableASTNode
+                                {
+                                    Metadata = token.Metadata,
+                                    Name = token.Value.GetAs<string>()
+                                },
+                            };
+
+                            nodes.Add(node);
+
+                            break;
+                        }
+                    case Token.Value:
+                        {
+                            nodes.Add(new MnemoLiteralASTNode
+                            {
+                                Value = token.Value,
+                                Metadata = token.Metadata
+                            });
+                            break;
+                        }
+                    case Token.ParenStart:
+                    case Token.Separator:
+                        break;
+                    default:
+                        throw new Exception("TODO: Better exception for invalid argument");
+                }
+
+                token = _stream.Read();
+            }
+
+            return nodes.ToArray();
+        }
+
+        MnemoLiteralASTNode[] BuildGenericTypeNodes()
+        {
+            if (_stream.Peek().Token != Token.LT)
+                return Array.Empty<MnemoLiteralASTNode>();
+
+            List<MnemoLiteralASTNode> nodes = new();
+            MnemoToken token = _stream.Read();
+            
+            while (token.Token != Token.GT)
+            {
+                if (token.Token == Token.Type)
+                {
+                    nodes.Add(new MnemoLiteralASTNode
+                    {
+                        Value = token.Value,
+                        Metadata = token.Metadata
+                    });
+                }
+
+                token = _stream.Read();
+            }
+
+            return nodes.ToArray();
         }
 
         MnemoASTNode BuildListNode()

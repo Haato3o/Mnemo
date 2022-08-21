@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mnemo.Core.Syntax;
 using Mnemo.Core.Syntax.AST;
+using Mnemo.Core.Syntax.AST.Nodes;
+using Mnemo.Core.Syntax.Entity;
 using Mnemo.Core.Syntax.Stream;
 using Mnemo.Core.Utils;
 using Mnemo.Tests.Utils;
@@ -15,20 +17,24 @@ namespace Mnemo.Tests.Core.Syntax.AST
         [TestMethod]
         public void MnemoSyntaxAnalyzer_ShouldCreateConstDefinitionAST()
         {
-            string expression = @"
-                const PLAYER_ADDRESS: uint64_t = 0x1412345678;
-                
-                const getPlayerOffsets(i: int32_t): vector => [
-                    0x10,
-                    0xA8,
-                    0x20 + (i * 8)
-                ];
-            ";
+            string expression = "let MUTABLE_VARIABLE: int32_t;";
 
             TokenStream stream = ToTokenStream(expression);
             var analyzer = new MnemoSyntaxAnalyzer(stream);
-            var actual = JsonProvider.Serialize(analyzer.Process());
-            
+            var actual = analyzer.Process();
+
+            var expected = new MnemoRootASTNode
+            {
+                Name = "Program"
+            };
+            expected.Nodes.Add(new MnemoDefineMutableASTNode
+            {
+                Name = new MnemoLiteralASTNode { Value = new BoxedValue() { Value = "MUTABLE_VARIABLE" } },
+                Type = new MnemoLiteralASTNode { Value = new BoxedValue() { Value = "int32_t" } },
+                Expr = new MnemoASTNode()
+            });
+
+            AssertExtensions.AreEqualDeep(actual, expected);
        }
 
         private static TokenStream ToTokenStream(string expression)
