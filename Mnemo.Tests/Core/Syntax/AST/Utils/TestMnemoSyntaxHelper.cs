@@ -6,7 +6,6 @@ using Mnemo.Core.Syntax.AST.Utils;
 using Mnemo.Core.Syntax.Entity;
 using Mnemo.Core.Utils;
 using Mnemo.Tests.Utils;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,7 +27,7 @@ namespace Mnemo.Tests.Core.Syntax.AST.Utils
                 .Select(token => token.Value.Value)
                 .ToArray();
 
-            var expected = new object[] { 0x20, "index", 8, ArithmeticType.Mul, ArithmeticType.Add };
+            var expected = new object[] { 0x20L, "index", 8L, ArithmeticType.Mul, ArithmeticType.Add };
 
             CollectionAssert.AreEqual(expected, actual);
         }

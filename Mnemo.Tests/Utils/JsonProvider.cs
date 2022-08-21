@@ -9,7 +9,7 @@ namespace Mnemo.Tests.Utils
         private static readonly Lazy<JsonSerializerSettings> _settings = new Lazy<JsonSerializerSettings>(() =>
         {
             var settings = new JsonSerializerSettings();
-            settings.Converters.Add(new StringEnumConverter() { CamelCaseText = true });
+            settings.Converters.Add(new StringEnumConverter());
             return settings;
         }, true);
 

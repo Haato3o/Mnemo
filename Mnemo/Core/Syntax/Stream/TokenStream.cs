@@ -29,6 +29,8 @@ namespace Mnemo.Core.Syntax.Stream
             return token;
         }
 
+        public void Prev() => _stream.Position -= structSize;
+
         public MnemoToken Next(Token token)
         {
             var mnemoToken = Read();

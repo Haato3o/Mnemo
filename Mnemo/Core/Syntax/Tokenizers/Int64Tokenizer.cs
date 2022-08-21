@@ -5,12 +5,12 @@ using System.Collections.Generic;
 
 namespace Mnemo.Core.Syntax.Tokenizers
 {
-    internal class Int32Tokenizer : ITokenizer
+    internal class Int64Tokenizer : ITokenizer
     {
         private readonly char[] validChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
         private readonly Dictionary<char, int> validCharsLookup = new();
 
-        public Int32Tokenizer()
+        public Int64Tokenizer()
         {
             for (int i = 0; i < validChars.Length; i++)
                 validCharsLookup.Add(validChars[i], i);
@@ -20,17 +20,17 @@ namespace Mnemo.Core.Syntax.Tokenizers
         {
             token = token.ToLowerInvariant();
 
-            Int32Type type = Int32Type.Decimal;
+            IntType type = IntType.Decimal;
             if (token.Length > 2)
                 type = token[..2] switch
                 {
-                    "0b" => Int32Type.Binary,
-                    "0o" => Int32Type.Octal,
-                    "0x" => Int32Type.Hexadecimal,
-                    _ => Int32Type.Decimal
+                    "0b" => IntType.Binary,
+                    "0o" => IntType.Octal,
+                    "0x" => IntType.Hexadecimal,
+                    _ => IntType.Decimal
                 };
 
-            if (type != Int32Type.Decimal)
+            if (type != IntType.Decimal)
                 token = token[2..];
 
             foreach (char c in token)
@@ -44,21 +44,21 @@ namespace Mnemo.Core.Syntax.Tokenizers
         {
             token = token.ToLowerInvariant();
 
-            Int32Type type = Int32Type.Decimal;
+            IntType type = IntType.Decimal;
             if (token.Length > 2)
                 type = token[..2] switch
                 {
-                    "0b" => Int32Type.Binary,
-                    "0o" => Int32Type.Octal,
-                    "0x" => Int32Type.Hexadecimal,
-                    _ => Int32Type.Decimal
+                    "0b" => IntType.Binary,
+                    "0o" => IntType.Octal,
+                    "0x" => IntType.Hexadecimal,
+                    _ => IntType.Decimal
                 };
 
-            if (type != Int32Type.Decimal)
+            if (type != IntType.Decimal)
                 token = token[2..];
 
-            int value = 0;
-            int radix = 1;
+            long value = 0;
+            long radix = 1;
             for (int i = token.Length - 1; i >= 0; i--)
             {
                 value += validCharsLookup[token[i]] * radix;

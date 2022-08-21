@@ -1,6 +1,6 @@
 ﻿namespace Mnemo.Core.Syntax.Tokenizers.Entities
 {
-    internal enum Int32Type
+    internal enum IntType
     {
         Binary = 2,
         Octal = 8,

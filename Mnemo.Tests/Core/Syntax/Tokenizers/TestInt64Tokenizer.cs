@@ -5,12 +5,12 @@ using Mnemo.Core.Syntax.Tokenizers;
 namespace Mnemo.Tests.Core.Syntax.Tokenizers
 {
     [TestClass]
-    public class TestInt32Tokenizer
+    public class TestInt64Tokenizer
     {
-        private readonly Int32Tokenizer tokenizer = new();
+        private readonly Int64Tokenizer tokenizer = new();
 
         [TestMethod]
-        public void Int32Tokenizer_ShouldReturnRightCanTokenize()
+        public void Int64Tokenizer_ShouldReturnRightCanTokenize()
         {
             string[] ints = { "10", "0b001010", "0x123FGH", "0x16A" };
             bool[] expecteds = { true, true, false, true };
@@ -26,15 +26,15 @@ namespace Mnemo.Tests.Core.Syntax.Tokenizers
         }
 
         [TestMethod]
-        public void Int32Tokenizer_ShouldConvertCorrectly()
+        public void Int64Tokenizer_ShouldConvertCorrectly()
         {
             string[] ints = { "10", "0b001010", "0x16A" };
-            int[] expecteds = { 10, 0b001010, 0x16A };
+            long[] expecteds = { 10, 0b001010, 0x16A };
 
             for (int i = 0; i < ints.Length; i++)
             {
                 string preToken = ints[i];
-                int expected = expecteds[i];
+                long expected = expecteds[i];
 
                 var actual = tokenizer.ConvertValue(preToken);
                 Assert.AreEqual(expected, actual);
@@ -42,7 +42,7 @@ namespace Mnemo.Tests.Core.Syntax.Tokenizers
         }
 
         [TestMethod]
-        public void Int32Tokenizer_ShouldNotConvertNonValidValues()
+        public void Int64Tokenizer_ShouldNotConvertNonValidValues()
         {
             string[] notInts = { "A", "Hello", "World", "0b02" };
 
@@ -51,7 +51,7 @@ namespace Mnemo.Tests.Core.Syntax.Tokenizers
         }
 
         [TestMethod]
-        public void Int32Tokenizer_ShouldBeValue()
+        public void Int64Tokenizer_ShouldBeValue()
         {
             Assert.AreEqual(Token.Value, tokenizer.Tokenize("10"));
         }

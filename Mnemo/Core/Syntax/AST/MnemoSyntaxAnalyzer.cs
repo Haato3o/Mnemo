@@ -263,6 +263,12 @@ namespace Mnemo.Core.Syntax.AST
                             });
                             break;
                         }
+                    case Token.ListStart:
+                        {
+                            _stream.Prev();
+                            nodes.Add(BuildListNode());
+                            break;
+                        }
                     case Token.ParenStart:
                     case Token.Separator:
                         break;

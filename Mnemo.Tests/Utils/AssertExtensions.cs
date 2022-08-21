@@ -6,7 +6,7 @@ namespace Mnemo.Tests.Utils
     {
         public static void AreEqualDeep<T>(T actual, T expected)
         {
-            Assert.AreEqual(JsonProvider.Serialize(actual), JsonProvider.Serialize(expected));
+            Assert.AreEqual(JsonProvider.Serialize(expected), JsonProvider.Serialize(actual));
         }
     }
 }
